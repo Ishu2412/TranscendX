@@ -12,6 +12,7 @@ const port = process.env.PORT || 3000;
 const saltRounds = 10;
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cors());
 env.config();
 
