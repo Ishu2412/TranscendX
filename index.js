@@ -9,7 +9,7 @@ import { run } from "./model.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
-const saltRounds = 10;
+const saltRounds = 100;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -18,7 +18,10 @@ env.config();
 connect();
 
 app.get("/", (req, res) => {
-  res.status(200).send("Hello");
+ 
+  //fetch data from database
+  res.status(200).send("Hello World");
+  
 });
 
 app.post("/register", async (req, res) => {
