@@ -5,7 +5,6 @@ import { connect, closeConnection, addUser, findUser } from "./mongoMethods.js";
 import bcrypt from "bcrypt";
 import env from "dotenv";
 import cors from "cors";
-import { run } from "./model.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
