@@ -33,4 +33,5 @@ async function run(path, type) {
   console.log(text);
 }
 
+run("image1.jpeg");
 export { run };
