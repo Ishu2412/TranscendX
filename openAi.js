@@ -21,7 +21,9 @@ async function generateImage(prompt) {
     // Call the OpenAI API
     const response = await openai.images.generate({
       model: "dall-e-2",
-      prompt: prompt,
+      prompt:
+        prompt +
+        ". Its an image of human with these specification about the surroundings",
       size: "1024x1024",
       n: 1,
       quality: "hd",
