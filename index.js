@@ -5,6 +5,9 @@ import { connect, closeConnection, addUser, findUser } from "./mongoMethods.js";
 import bcrypt from "bcrypt";
 import env from "dotenv";
 import cors from "cors";
+import { generateImage } from "./openAi.js";
+import { analyzeImage } from "./azureAI.js";
+import { llmGenerator, textSolutionGenerator } from "./modelLLM.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -81,6 +84,71 @@ app.post("/login", async (req, res) => {
     }
   } catch {
     res.status(500).send(`Internal Server Error`);
+  }
+});
+
+//generate pose
+app.post("/generate", async (req, res) => {
+  try {
+    const prompt = req.body.prompt;
+    //photo solution
+    const url = await generateImage(JSON.stringify(prompt));
+    //text solution
+    const textSolution = await textSolutionGenerator(url);
+    //caption for the image
+    const promptLLM = `${prompt} - Generate a caption  using information about image for instagram post. Caption must be attractive and eye catching. Use all the information and generate 4 captions containg 5 words atmost.`;
+    const caption = await llmGenerator(promptLLM);
+
+    res.status(200).json({
+      url: url,
+      textSolution: textSolution,
+      caption: caption,
+    });
+  } catch (err) {
+    console.log(`Error while generating image ${err}`);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+//make prompt through analysis of image
+app.post("/prompt", async (req, res) => {
+  try {
+    const url = req.body.url;
+    const response = await analyzeImage(url);
+    console.log(response);
+    res.status(200).send(response);
+  } catch (err) {
+    console.log(`Internal server Error`);
+    res.status(500).send(`Internal Server Error`);
+  }
+});
+
+//generating caption
+app.post("/caption", async (req, res) => {
+  try {
+    const url = req.body.url;
+    const media = req.body.media || "Instagram";
+    const response = await analyzeImage(url);
+    const prompt = `${response} - Generate a caption  using information about image for ${media} post. Caption must be attractive and eye catching. Use all the information and generate 4 captions containg 5 words atmost.`;
+    const text = await llmGenerator(prompt);
+    res.status(500).send(text);
+  } catch (err) {
+    console.log(`Error while generating caption ${err}`);
+    res.status(500).send(`Internal server error`);
+  }
+});
+
+//place information
+app.post("/place", async (req, res) => {
+  try {
+    const placeName = req.body.name;
+    const prompt = `Tell about best places to visit and cultural events to attend for content creation for social media content creator at ${placeName}`;
+    const info = await llmGenerator(prompt);
+
+    res.status(200).send(info);
+  } catch (err) {
+    console.log(`Error while generating place infromation: ${err}`);
+    res.status(500).send(`Internal server error`);
   }
 });
 
